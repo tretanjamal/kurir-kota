@@ -1,0 +1,261 @@
+@font-face { font-family: Nunito; font-weight: 900; src: url(../assets/fonts/Nunito-Black.ttf); font-display: block; }
+@font-face { font-family: Nunito; font-weight: 700; src: url(../assets/fonts/Nunito-Bold.ttf); font-display: block; }
+@font-face { font-family: Nunito; font-weight: 600; src: url(../assets/fonts/Nunito-SemiBold.ttf); font-display: block; }
+
+:root {
+  --ink: #2B2D42; --cream: #FFF4DC; --sun: #FFC93C; --red: #EF5B4B; --teal: #1FA89B;
+  --sky: #8ED6F0; --leaf: #6CBF58; --road: #5B6784; --slate: #7C86A8;
+}
+html, body { margin: 0; height: 100%; background: #6EC6EA; overflow: hidden; color: var(--ink);
+  font-family: Nunito, "Trebuchet MS", Arial, sans-serif; font-weight: 700;
+  -webkit-user-select: none; user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+#stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; overflow: hidden; background: var(--sky); }
+#scene-root, .scene { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; }
+svg.layer { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; display: block; }
+#cover { position: absolute; inset: 0; background: var(--cream); opacity: 0; pointer-events: none; z-index: 50; }
+#rotate { position: fixed; inset: 0; display: none; z-index: 99; background: var(--ink); color: var(--cream);
+  flex-direction: column; align-items: center; justify-content: center; text-align: center; font-weight: 900; font-size: 28px; padding: 24px; }
+#rotate svg { width: 120px; height: 120px; margin-bottom: 16px; animation: tilt 2s ease-in-out infinite; }
+@keyframes tilt { 0%,30% { transform: rotate(0); } 60%,100% { transform: rotate(-90deg); } }
+
+/* tombol anak */
+.btn { position: absolute; box-sizing: border-box; border: 4px solid var(--ink); border-radius: 24px; padding: 0 12px;
+  font: 900 32px/1 Nunito, "Trebuchet MS", Arial, sans-serif; color: #fff; cursor: pointer; --c: var(--sun); --d: #B88A00;
+  background: var(--c); box-shadow: 0 8px 0 var(--d); display: flex; align-items: center; justify-content: center;
+  transition: transform 80ms ease-out, box-shadow 80ms ease-out, filter 120ms; overflow: visible; text-shadow: 0 2px 0 rgba(43,45,66,.45); }
+.btn::before { content: ""; position: absolute; left: 10px; right: 10px; top: 5px; height: 30%; border-radius: 12px; background: #fff; opacity: .25; pointer-events: none; }
+.btn .lbl { position: relative; white-space: nowrap; }
+.btn::after { content: ""; position: absolute; inset: calc(-4px - var(--pad, 0px)); }
+.btn:active:not(:disabled), .btn.pressed { transform: translateY(6px) scale(.95); box-shadow: 0 2px 0 var(--d); }
+.btn:disabled { filter: grayscale(.9); opacity: .55; cursor: default; }
+.btn:focus-visible { outline: 5px solid #fff; outline-offset: 2px; box-shadow: 0 8px 0 var(--d), 0 0 0 9px var(--ink); }
+.btn.red { --c: var(--red); --d: #A8362A; }
+.btn.sun { --c: var(--sun); --d: #B88A00; color: var(--ink); text-shadow: none; }
+.btn.teal { --c: var(--teal); --d: #0F6F66; }
+.btn.sky { --c: var(--sky); --d: #4C9EBF; color: var(--ink); text-shadow: none; }
+.btn.slate { --c: var(--slate); --d: #4D5578; }
+.btn.small { font-size: 24px; border-radius: 32px; }
+.btn.glow { animation: glow 0.8s ease-in-out infinite alternate; z-index: 5; }
+@keyframes glow { from { box-shadow: 0 8px 0 var(--d), 0 0 0 0 rgba(255,255,255,.9); } to { box-shadow: 0 8px 0 var(--d), 0 0 0 14px rgba(255,255,255,.75); } }
+
+.panel { position: absolute; box-sizing: border-box; background: var(--cream); border: 4px solid var(--ink); border-radius: 28px; box-shadow: 0 8px 0 rgba(43,45,66,.25); }
+.pill { position: absolute; box-sizing: border-box; background: var(--cream); border: 4px solid var(--ink); border-radius: 30px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; white-space: nowrap; }
+.txt { position: absolute; font-weight: 900; }
+
+/* HUD bermain */
+.sub { position: absolute; left: 132px; top: 18px; width: 440px; height: 92px; display: flex; align-items: center; flex-wrap: wrap;
+  align-content: center; font: 900 40px/1.12 Nunito, Arial, sans-serif; gap: 0 12px; }
+.sub .w { color: #6B7090; transition: color 90ms; }
+.sub .w.on { color: var(--ink); }
+.sub.multi { font-size: 32px; line-height: 1.1; }
+.sub .w.dim { opacity: .72; }
+.lot { position: absolute; background: transparent; border: 0; border-radius: 14px; cursor: pointer; padding: 0; z-index: 4; }
+.lot:focus-visible { outline: 5px solid #fff; box-shadow: 0 0 0 9px var(--ink); }
+.lot:disabled { cursor: default; }
+.lot:not(:disabled)::after { content: ''; position: absolute; inset: 2px; border: 4px dashed #fff; border-radius: 14px; pointer-events: none; animation: lotpulse 1.3s ease-in-out infinite; }
+@keyframes lotpulse { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+body.reduce .lot::after { animation: none !important; opacity: .8; }
+@media (prefers-reduced-motion: reduce) { .lot::after { animation: none !important; opacity: .8; } }
+.sub .w.key.left { color: var(--red); } .sub .w.key.right { color: var(--teal); }
+.sub .w.hl { background: #FFE58A; border-radius: 10px; padding: 0 6px; margin: 0 -6px; }
+.ring { animation: ring .12s linear 8 alternate; }
+@keyframes ring { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+.coach { position: absolute; left: 24px; bottom: 112px; width: 450px; min-height: 84px; box-sizing: border-box; padding: 10px 14px 10px 18px;
+  display: flex; align-items: center; gap: 12px; font-size: 24px; line-height: 1.2; font-weight: 800; z-index: 6; }
+.coach .t { flex: 1; }
+.coach .btn { position: relative; flex: 0 0 64px; width: 64px; height: 64px; border-radius: 32px; padding: 0; }
+.coach .btn::before { display: none; }
+.handptr { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 20; pointer-events: none; }
+.handptr .hrot { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; }
+.handptr .hp { position: absolute; display: block; max-width: none; filter: drop-shadow(0 0 3px #fff) drop-shadow(0 5px 0 rgba(43,45,66,.35)); animation: hptap .8s ease-in-out infinite; }
+@keyframes hptap { 0%, 100% { transform: scale(1); } 42% { transform: scale(.82); } 62% { transform: scale(1.05); } }
+.handptr svg { position: absolute; left: -4px; top: -4px; width: 90px; height: 90px; overflow: visible; filter: drop-shadow(0 4px 0 rgba(43,45,66,.3)); animation: tapbob .7s ease-in-out infinite alternate; }
+@keyframes tapbob { from { transform: translate(0,0); } to { transform: translate(-6px,-8px); } }
+
+/* overlay */
+.overlay { position: absolute; inset: 0; background: rgba(43,45,66,.55); z-index: 30; }
+
+/* ambient (SVG) */
+.sway2 { transform-box: fill-box; transform-origin: 50% 100%; animation: sway2 4.2s ease-in-out infinite alternate; }
+@keyframes sway2 { from { transform: rotate(-2.4deg); } to { transform: rotate(2.4deg); } }
+.birdbob { animation: birdbob .55s ease-in-out infinite alternate; }
+@keyframes birdbob { from { transform: translateY(-5px) rotate(-5deg); } to { transform: translateY(5px) rotate(4deg) scaleY(.94); } }
+.driveL { animation: driveL 26s linear infinite; }
+@keyframes driveL { from { transform: translateX(1500px); } to { transform: translateX(-250px); } }
+.vdrive { animation: vdrive 9s linear infinite; }
+.pace { animation: pace 12s ease-in-out infinite alternate; }
+@keyframes pace { from { transform: translateX(0); } to { transform: translateX(var(--pw, 300px)); } }
+.stepbob { animation: stepbob .5s ease-in-out infinite alternate; }
+@keyframes stepbob { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+@keyframes vdrive { from { transform: translateY(0); } to { transform: translateY(var(--vd, -230px)); } }
+.sway { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 3.4s ease-in-out infinite alternate; }
+@keyframes sway { from { transform: rotate(-1.8deg); } to { transform: rotate(1.8deg); } }
+.flap { transform-box: fill-box; transform-origin: 50% 100%; animation: flap .5s ease-in-out infinite alternate; }
+@keyframes flap { from { transform: scaleY(1); } to { transform: scaleY(.45); } }
+.drift { animation: drift 70s linear infinite; }
+@keyframes drift { from { transform: translateX(-250px); } to { transform: translateX(1500px); } }
+.drive { animation: drive 22s linear infinite; }
+@keyframes drive { from { transform: translateX(-200px); } to { transform: translateX(1500px); } }
+.fly { animation: fly 26s linear infinite; }
+@keyframes fly { from { transform: translateX(-100px); } to { transform: translateX(1400px); } }
+.cr-bob { animation: breathe 2.4s ease-in-out infinite alternate; }
+@keyframes breathe { from { transform: translateY(0); } to { transform: translateY(-2.5px); } }
+.cr.riding .shoe.l { animation: pedal .42s linear infinite; }
+.cr.riding .shoe.r { animation: pedal .42s linear infinite -.21s; }
+@keyframes pedal { 0%,100% { transform: translateY(-8px); } 50% { transform: translateY(8px); } }
+.cr.riding .cr-bob { animation: ridebob .42s ease-in-out infinite alternate; }
+@keyframes ridebob { from { transform: translateY(0) rotate(-1.2deg); } to { transform: translateY(-3px) rotate(1.2deg); } }
+.cr .eyes { transform-box: fill-box; transform-origin: 50% 50%; animation: blink 4s infinite; }
+@keyframes blink { 0%,94%,100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+.cr .arm { transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+.cr.raiseL .arm.l { transform: rotate(-70deg); } .cr.raiseR .arm.r { transform: rotate(70deg); }
+.cr.cheer .arm.l { transform: rotate(-35deg); } .cr.cheer .arm.r { transform: rotate(35deg); }
+.cr.cheer .cr-bob { animation: jump .5s ease-out infinite alternate; }
+@keyframes jump { from { transform: translateY(0); } to { transform: translateY(-16px); } }
+.cr.confused .cr-bob { animation: shake .18s linear 6; }
+@keyframes shake { from { transform: translateX(-4px); } to { transform: translateX(4px); } }
+.hbadge.blink { animation: pulse .35s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 50%; }
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.25); } }
+.person.run { animation: runbob .22s ease-in-out infinite alternate; }
+@keyframes runbob { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+.person .parm { transform-box: view-box; }
+.person.cheer .parm.l { transform: rotate(-30deg); } .person.cheer .parm.r { transform: rotate(30deg); }
+.person.cheer { animation: jump .4s ease-out infinite alternate; }
+.bounce { animation: pulse .5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 50%; }
+
+/* Kurangi animasi */
+body.reduce .pace, body.reduce .stepbob, body.reduce .sway, body.reduce .sway2, body.reduce .birdbob, body.reduce .driveL, body.reduce .vdrive, body.reduce .flap, body.reduce .drift, body.reduce .drive, body.reduce .fly, body.reduce .cr-bob,
+body.reduce .cr .shoe, body.reduce .cr .eyes, body.reduce .handptr svg, body.reduce .handptr .hp, body.reduce .btn.glow, body.reduce .hbadge.blink,
+body.reduce .ring, body.reduce .person, body.reduce .bounce, body.reduce .portrait .pm, body.reduce .portrait .pi, body.reduce .cr3d .hop { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .pace, .stepbob, .sway, .sway2, .birdbob, .driveL, .vdrive, .flap, .drift, .drive, .fly, .cr-bob, .cr .shoe, .cr .eyes, .handptr svg, .handptr .hp, .btn.glow, .hbadge.blink, .ring, .person, .bounce, .portrait .pm, .portrait .pi, .cr3d .hop { animation: none !important; }
+}
+
+
+/* Potret karakter: menempel di tepi atas panel, dasarnya tertutup panel */
+.portrait { position: absolute; pointer-events: none; transform-origin: 50% 100%; }
+.portrait .pm, .portrait .pi { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform-origin: 50% 100%; }
+.portrait .pm { animation: psway 5.2s ease-in-out infinite; }
+.portrait .pi { animation: pbreathe 3.1s ease-in-out infinite; }
+.portrait .pf { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.portrait img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; user-select: none; -webkit-user-drag: none; }
+@keyframes psway { 0%,100% { transform: rotate(-1.4deg); } 50% { transform: rotate(1.4deg); } }
+@keyframes pbreathe { 0%,100% { transform: scale(1,1); } 50% { transform: scale(1.012,1.028); } }
+.has-portrait { isolation: isolate; background: transparent !important; border-color: transparent !important; box-shadow: none !important; overflow: visible !important; }
+.has-portrait::before { content: ''; position: absolute; left: -4px; top: -4px; right: -4px; bottom: -4px; z-index: -1; background: var(--cream); border: 4px solid var(--ink); border-radius: inherit; box-shadow: 0 8px 0 rgba(43,45,66,.25); }
+.has-portrait > .portrait { z-index: -2; }
+
+/* Kurir 3D pra-render: napas halus saat diam, melompat kecil saat bersorak */
+.cr3d .hop { transform-box: fill-box; transform-origin: 50% 100%; animation: crbreathe 2.8s ease-in-out infinite; }
+.cr3d.riding .hop { animation: none; }
+.cr3d.raiseL .cs, .cr3d.raiseL .rx { transform: rotate(-7deg) translateX(-4px); transform-box: fill-box; transform-origin: 50% 90%; }
+.cr3d.raiseR .cs, .cr3d.raiseR .rx { transform: rotate(7deg) translateX(4px); transform-box: fill-box; transform-origin: 50% 90%; }
+.cr3d.cheer .hop { animation: crhop .46s ease-in-out infinite alternate; }
+@keyframes crbreathe { 0%,100% { transform: scale(1,1); } 50% { transform: scale(1.012,1.03); } }
+@keyframes crhop { from { transform: translateY(0) scale(1.02,.97); } to { transform: translateY(-12px) scale(.98,1.03); } }
+@keyframes crsquash { 0% { transform: scale(1.03,.95); } 100% { transform: scale(1,1); } }
+
+/* ikon bulat, sakelar Pengaturan, toast, layar judul */
+.btn.small .lbl { display: inline-flex; align-items: center; justify-content: center; }
+.sw-row { box-sizing: border-box; display: flex; align-items: center; width: 100%; padding: 0 22px; gap: 18px; text-align: left; color: #fff; }
+.sw-ic { flex: 0 0 64px; height: 64px; border-radius: 32px; background: rgba(255,255,255,.22); display: flex; align-items: center; justify-content: center; }
+.sw-tx { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; line-height: 1.08; }
+.sw-tx b { font-size: 32px; font-weight: 900; }
+.sw-tx i { font-size: 20px; font-style: normal; font-weight: 700; opacity: .9; }
+.sw-sw { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; }
+.sw-track { width: 82px; height: 44px; border-radius: 22px; background: #5F688C; border: 4px solid var(--ink); position: relative; box-sizing: border-box; transition: background .15s; }
+.sw-track.on { background: #BFF0E6; }
+.sw-knob { position: absolute; top: 3px; left: 3px; width: 30px; height: 30px; border-radius: 15px; background: #fff; border: 3px solid var(--ink); box-sizing: border-box; transition: left .18s cubic-bezier(.34,1.56,.64,1); }
+.sw-track.on .sw-knob { left: 41px; background: var(--sun); }
+.sw-st { font-size: 28px; font-weight: 900; min-width: 78px; text-align: left; }
+.toast { position: absolute; left: 50%; top: 100px; transform: translateX(-50%); z-index: 50; background: var(--cream); border: 4px solid var(--ink); border-radius: 24px; padding: 10px 22px; font: 900 24px Nunito, Arial, sans-serif; color: var(--ink); box-shadow: 0 6px 0 rgba(43,45,66,.25); pointer-events: none; }
+.btn.pulse { animation: startpulse 1.8s ease-in-out infinite; }
+@keyframes startpulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+.btn.pulse:active:not(:disabled) { animation: none; }
+.logosway { transform-box: fill-box; transform-origin: 50% 50%; animation: logosway 4.6s ease-in-out infinite alternate; }
+@keyframes logosway { from { transform: rotate(-.7deg) translateY(-2px); } to { transform: rotate(.7deg) translateY(3px); } }
+body.reduce .btn.pulse, body.reduce .logosway { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .btn.pulse, .logosway { animation: none !important; } }
+
+/* ---- layar hasil (dipindah dari gaya inline result.js) ---- */
+.r-title { left: 0; width: 1280px; top: 18px; text-align: center; font-size: 56px; color: #EF5B4B; -webkit-text-stroke: 8px #2B2D42; paint-order: stroke fill; letter-spacing: 1px; }
+.r-sub { left: 0; width: 1280px; top: 84px; text-align: center; font-size: 26px; }
+.r-coin { left: 852px; top: 152px; width: 200px; height: 56px; font-size: 26px; }
+.r-coin-ico { margin-right: 10px; }
+.r-skills { left: 40px; top: 246px; width: 560px; height: 364px; padding: 16px 24px; overflow: hidden; }
+.r-h { font-weight: 900; font-size: 30px; margin-bottom: 6px; }
+.r-none { font-size: 24px; line-height: 1.3; }
+.r-row { display: flex; align-items: center; gap: 12px; margin: 4px 0; font-size: 24px; line-height: 1.15; font-weight: 800; }
+.r-row svg { flex: 0 0 50px; }
+.r-more { font-size: 22px; font-weight: 700; margin-top: 6px; }
+.r-teach { left: 630px; top: 246px; width: 610px; height: 364px; padding: 10px 22px; overflow: hidden; background: #FFFBEF; }
+.t-h { font-weight: 900; font-size: 28px; height: 56px; }
+.t-intro { font-size: 20px; line-height: 1.22; margin: 0 0 6px; font-weight: 600; }
+.t-table { width: 100%; border-collapse: collapse; font-size: 20px; font-weight: 700; }
+.t-table td { padding: 0 6px; }
+.t-table td.c { text-align: center; }
+.t-head { background: #FFE9B0; }
+.t-head th:first-child { text-align: left; padding: 2px 6px; }
+.dot { display: inline-block; width: 14px; height: 14px; border-radius: 7px; border: 2px solid #2B2D42; margin-right: 6px; vertical-align: -1px; }
+.t-tip { font-size: 20px; line-height: 1.22; margin-top: 6px; font-weight: 700; }
+.r-offscreen { position: fixed; left: -999px; top: 0; }
+
+/* ---- Level 5 Turis ---- */
+.t-slot { display: inline-block; min-width: 110px; padding: 0 10px; margin: 0 4px; border-radius: 10px; border: 3px dashed #2B2D42; background: #fff; text-align: center; }
+.t-slot.fill { min-width: 0; border-style: solid; background: #FFE9B0; }
+.t-prev { left: 12px; top: 604px; width: 1124px; height: 44px; display: flex; align-items: center; font-size: 26px; font-weight: 800; padding: 0 16px; white-space: nowrap; z-index: 6; }
+.t-opt .lbl { white-space: normal; line-height: 1.1; font-size: 23px; text-align: center; }
+.t-card .lbl { white-space: nowrap; font-size: 24px; }
+
+/* ---- pilih misi, buku, jeda/pengaturan/kata, HUD (dipindah dari gaya inline) ---- */
+.lv-title { left: 0; width: 1280px; top: 30px; text-align: center; font-size: 60px; color: #EF5B4B; -webkit-text-stroke: 8px #2B2D42; paint-order: stroke fill; }
+.lv-in { display: flex; flex-direction: column; align-items: center; gap: 6px; white-space: normal; text-align: center; line-height: 1.1; width: 100%; }
+.lv-n { font-size: 30px; } .lv-c { font-size: 24px; }
+.lv-s { font-size: 22px; font-weight: 700; padding: 0 6px; }
+.lv-lock { font-size: 22px; font-weight: 700; }
+.lv-card .lbl { white-space: normal; width: 100%; }
+.btn.locked { filter: grayscale(.9); opacity: .93; cursor: default; }
+.lv-card.nope { animation: shake .09s linear 4 alternate; }
+body.reduce .lv-card.nope { animation: none; }
+@media (prefers-reduced-motion: reduce) { .lv-card.nope { animation: none; } }
+.bk-title { left: 0; width: 1280px; top: 56px; text-align: center; font-size: 48px; color: #EF5B4B; -webkit-text-stroke: 7px #2B2D42; paint-order: stroke fill; }
+.bk-sub { left: 0; width: 1280px; top: 116px; text-align: center; font-size: 24px; font-weight: 700; }
+.bk-cnt { left: 1000px; top: 62px; font-size: 30px; width: 160px; text-align: right; }
+.bk-empty { left: 0; width: 1280px; top: 546px; text-align: center; font-size: 24px; font-weight: 700; display: none; }
+.ov-t-set { left: 0; width: 760px; top: 20px; text-align: center; font-size: 46px; }
+.ov-t-menu { left: 0; width: 640px; top: 24px; text-align: center; font-size: 44px; }
+.ov-t-gl { left: 0; width: 1200px; top: 12px; text-align: center; font-size: 42px; }
+.ov-s-gl { left: 0; width: 1200px; top: 62px; text-align: center; font-size: 24px; font-weight: 700; }
+/* pop-up Informasi, Referensi, Pengembang */
+.ab-title { left: 0; width: 1112px; top: 14px; text-align: center; font-size: 44px; }
+.ab-area { position: absolute; left: 40px; top: 78px; width: 1032px; height: 460px; font-size: 24px; line-height: 1.25; font-weight: 600; display: flex; flex-direction: column; gap: 14px; }
+.ab-area.ab-tabbed { top: 152px; height: 386px; gap: 10px; }
+.ab-lead { font-weight: 900; }
+.ab-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.ab-list li { display: flex; align-items: flex-start; gap: 14px; }
+.ab-num { flex: 0 0 40px; height: 40px; border-radius: 20px; background: var(--sun); border: 3px solid var(--ink); box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; }
+.ab-tx { flex: 1 1 auto; min-width: 0; padding-top: 4px; }
+.ab-name { display: inline-block; min-width: 200px; margin-right: 8px; font-weight: 900; }
+.ab-card { background: #fff; border: 3px solid var(--ink); border-radius: 20px; padding: 12px 22px; box-sizing: border-box; }
+.ab-card h3 { margin: 0 0 6px; font-size: 28px; font-weight: 900; color: #0F6F66; }
+.ab-card p { margin: 0 0 6px; }
+.ab-card p:last-child { margin-bottom: 0; }
+.ab-dots { margin: 0 0 6px; padding-left: 28px; }
+.ab-dots:last-child { margin-bottom: 0; }
+.ab-dots li { margin-bottom: 3px; }
+.ab-area.ab-dev { flex-direction: row; gap: 24px; align-items: stretch; }
+.ab-who { flex: 0 0 400px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.ab-photo { width: 236px; height: 236px; border-radius: 24px; border: 4px solid var(--ink); box-sizing: border-box; object-fit: cover; margin-bottom: 10px; }
+.ab-photo-none { display: flex; align-items: center; justify-content: center; background: var(--sky); font-size: 96px; font-weight: 900; }
+.ab-name-big { font-size: 36px; line-height: 1.1; font-weight: 900; color: var(--red); }
+.ab-mail { font-size: 22px; font-weight: 800; white-space: nowrap; }
+.ab-ach { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.ab-ach .ab-dots li { margin-bottom: 14px; }
+.gl-area { position: absolute; left: 0; top: 176px; width: 1200px; height: 380px; }
+.k-top { left: 24px; top: 14px; width: 860px; height: 100px; }
+.k-phone { position: absolute; left: 34px; top: 30px; width: 68px; height: 68px; transform-origin: 50% 50%; }
+.k-coin { left: 892px; top: 22px; width: 148px; height: 50px; }
+.k-mission { left: 906px; top: 84px; width: 350px; height: 38px; font-size: 20px; }
+.k-diagram { left: 24px; top: 134px; width: 332px; height: 152px; display: none; padding: 10px; z-index: 7; pointer-events: none; }
+.k-banner { left: 390px; top: 230px; width: 500px; height: 130px; z-index: 12; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 900; color: #EF5B4B; text-shadow: 0 3px 0 #2B2D42; }
+.k-coach { left: 0; top: 0; z-index: 12; pointer-events: none; padding: 8px 22px; font-size: 30px; line-height: 1.15; font-weight: 900; text-align: center; max-width: 380px; width: max-content; opacity: 0; white-space: normal; }
