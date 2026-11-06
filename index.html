@@ -6,6 +6,14 @@
 <title>Kurir Kota: Petualangan Arah Bahasa Inggris</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23FFC93C' stroke='%232B2D42' stroke-width='3'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/style.css">
+<script>
+/* pengaman-ringan: tanpa klik kanan, salin, potong, tempel, dan Ctrl+U, tanpa pemberitahuan. Salinan dari tombol gim sendiri (kotak teks tersembunyi) tetap jalan. */
+(function () {
+  function cegah(e) { if (e.type === 'copy' && e.target && e.target.tagName === 'TEXTAREA') return; e.preventDefault(); }
+  ['contextmenu', 'copy', 'cut', 'paste'].forEach(function (n) { document.addEventListener(n, cegah, true); });
+  document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U' || e.keyCode === 85)) e.preventDefault(); }, true);
+})();
+</script>
 </head>
 <body>
 <div id="stage"><div id="scene-root"></div><div id="cover"></div></div>
